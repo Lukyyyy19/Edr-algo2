@@ -11,48 +11,49 @@ public class Edr {
 
     private HandlerHeap[] _estudiantesPorId;
     private ColaPrioridadHeap _estudiantesPorPromedio;
-    private int d_aula;
+    private int d_aula; // provisorio hasta ver que hacemos, si tenemos una clase aula o que
 
     public Edr(int LadoAula, int Cant_estudiantes, int[] ExamenCanonico) {
         d_aula = LadoAula;
-        Pair<Integer, Integer> posicion = new Pair<>(0, 0);
+        Pair<Integer, Integer> posicion = new Pair<>(0, 0); // esto es medio al pedo, todavia no se uso
         _estudiantesPorId = new HandlerHeap[Cant_estudiantes];
         _estudiantesPorPromedio = new ColaPrioridadHeap(Cant_estudiantes);
-        for (int i = 0; i < Cant_estudiantes; i++) {
+        for (int i = 0; i < Cant_estudiantes; i++) { // O(E)
             posicion = new Pair<>(i % LadoAula, i / LadoAula);
-            Estudiante estudiante = new Estudiante(i, new Examen(ExamenCanonico.length, ExamenCanonico), posicion);
+            Estudiante estudiante = new Estudiante(i, new Examen(ExamenCanonico.length, ExamenCanonico), posicion); // O(R)
             _estudiantesPorId[i] = _estudiantesPorPromedio.insertar(estudiante);
         }
-    }
+    }// O(E*R)
 
     // -------------------------------------------------NOTAS--------------------------------------------------------------------------
 
     public double[] notas() {
         double[] notas = new double[_estudiantesPorId.length];
-        for (int i = 0; i < _estudiantesPorId.length; i++) {
+        for (int i = 0; i < _estudiantesPorId.length; i++) { // O(E)
             HandlerHeap handler = _estudiantesPorId[i];
             if (handler != null) {
-                notas[i] = handler.getEstudiante().getExamen().getPromedio();
+                notas[i] = handler.getEstudiante().getExamen().getPromedio(); // O(1) //esto no se si esta bien o rompe
+                                                                              // encapsulamiento
             }
         }
         return notas;
-    }
+    }// O(E)
 
     // ------------------------------------------------COPIARSE------------------------------------------------------------------------
 
     public void copiarse(int estudiante) {
         Estudiante est = _estudiantesPorId[estudiante].getEstudiante();
-        int[] vecinos = { estudiante - 1, estudiante + 1, estudiante - d_aula };
+        int[] vecinos = { estudiante - 1, estudiante + 1, estudiante - d_aula }; // toma todos los Id de los vecinos
         Estudiante mejorVecino = null;
         int mejorVecinoRtas = 0;
-        for (int i = 0; i < vecinos.length; i++) {
+        for (int i = 0; i < vecinos.length; i++) {// O(1)
             int rtasVecino = 0;
             int vecino = vecinos[i];
             if (vecino >= 0 && vecino < _estudiantesPorId.length) {
                 HandlerHeap handlerVecino = _estudiantesPorId[vecino];
                 if (handlerVecino != null) {
                     Estudiante estVecino = handlerVecino.getEstudiante();
-                    for (int j = 0; j < estVecino.getExamen().cantidadPreguntas(); j++) {
+                    for (int j = 0; j < estVecino.getExamen().cantidadPreguntas(); j++) { // O(R)
                         if (estVecino.getExamen().getRespuesta(j) != -1 && est.getExamen().getRespuesta(j) == -1) {
                             rtasVecino++;
                         }
@@ -74,18 +75,18 @@ public class Edr {
                 est.getExamen().setRespuesta(i, mejorVecino.getExamen().getRespuesta(i));
                 break;
             }
-        }
+        } // O(R)
 
-    }
+    }// O(R)
 
     // -----------------------------------------------RESOLVER----------------------------------------------------------------
 
     public void resolver(int estudiante, int NroEjercicio, int res) {
         HandlerHeap handler = _estudiantesPorId[estudiante];
         handler.getEstudiante().completarEjercicio(NroEjercicio, res);
-        _estudiantesPorPromedio.reOrdenar(handler.getHeapIndex());
+        _estudiantesPorPromedio.reOrdenar(handler.getHeapIndex());// O(log(E))
 
-    }
+    }// O(log(E))
 
     // ------------------------------------------------CONSULTAR DARK
     // WEB-------------------------------------------------------
@@ -98,7 +99,7 @@ public class Edr {
 
     public void entregar(int estudiante) {
         _estudiantesPorId[estudiante].getEstudiante().entregar();
-    }
+    }// O(1)
 
     // -----------------------------------------------------CORREGIR---------------------------------------------------------
 
@@ -111,13 +112,13 @@ public class Edr {
 
     public int[] chequearCopias() {
         ArrayList<Integer> copias = new ArrayList<>();
-        for (int i = 0; i < _estudiantesPorId.length; i++) {
+        for (int i = 0; i < _estudiantesPorId.length; i++) {// O(E)
             Estudiante estudiante = _estudiantesPorId[i].getEstudiante();
             int respuestasCopiadas = 0;
-            for (int j = 0; j < estudiante.getExamen().cantidadPreguntas(); j++) {
+            for (int j = 0; j < estudiante.getExamen().cantidadPreguntas(); j++) {// O(R)
                 double suma = 0;
                 if (estudiante.getExamen().getRespuesta(j) != -1) {
-                    for (int k = 0; k < _estudiantesPorId.length; k++) {
+                    for (int k = 0; k < _estudiantesPorId.length; k++) {// O(E)
                         if (k != i) {
                             Estudiante otroEstudiante = _estudiantesPorId[k].getEstudiante();
                             if (otroEstudiante.getExamen().getRespuesta(j) == estudiante.getExamen().getRespuesta(j)) {
@@ -139,7 +140,7 @@ public class Edr {
         int[] result = new int[copias.size()];
         for (int i = 0; i < copias.size(); i++) {
             result[i] = copias.get(i);
-        }
+        } // Esto fue la forma rapida que se me ocurrio, seguro hay algo mejor
         return result;
-    }
+    }// O(E^2 * R) NO RESPETA EL ENUNCIADO
 }

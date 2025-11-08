@@ -6,13 +6,13 @@ public class Estudiante {
     private int _id;
     private Examen _examen;
     private boolean _entregado;
-    private Pair<Integer, Integer> _posicion;
+    private boolean _seCopio;
 
-    public Estudiante(int id, Examen examen, Pair<Integer, Integer> posicion) {
+    public Estudiante(int id, Examen examen) {
         _id = id;
         _entregado = false;
         _examen = examen;
-        _posicion = posicion;
+        _entregado = false;
     }
 
     public int getId() {
@@ -34,4 +34,16 @@ public class Estudiante {
     public void entregar() {
         _entregado = true;
     }
+
+    public boolean getSeCopio(){
+        return _seCopio;
+    }
+    public void setSeCopio(boolean b){
+        _seCopio = b;
+    }
+
+    public boolean getEntregado(){
+        return _entregado;
+    }
+    
 }

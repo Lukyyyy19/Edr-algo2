@@ -1,8 +1,17 @@
 package aed;
+
 //FALTA HACERLO MIN HEAP Y PONER LA COMPARACION DE ENTREGADO
 public class ColaPrioridadHeap {
     private HandlerHeap[] _estudiantes;
     private int _ultimo;
+
+    public int getLongitud() {
+        return _estudiantes.length;
+    }
+
+    public HandlerHeap getProm(int index) {
+        return _estudiantes[index];
+    }
 
     public ColaPrioridadHeap(int capacidad) {
         _estudiantes = new HandlerHeap[capacidad];
@@ -10,65 +19,23 @@ public class ColaPrioridadHeap {
     }
 
     public HandlerHeap insertar(Estudiante estudiante) {
-        int hijoIzquierdo = _ultimo * 2 + 1;
-        int hijoDerecho = _ultimo * 2 + 2;
+        // int hijoIzquierdo = _ultimo * 2 + 1;
+        // int hijoDerecho = _ultimo * 2 + 2;
         HandlerHeap nuevo = new HandlerHeap(estudiante, _ultimo);
         if (_estudiantes[_ultimo] == null) {
             _estudiantes[_ultimo] = nuevo;
             _ultimo++;
             return nuevo;
-        } else if (_estudiantes[hijoIzquierdo] == null) {
-            _estudiantes[hijoIzquierdo] = nuevo;
-            if (estudiante.getExamen().getPromedio() < _estudiantes[_ultimo].getEstudiante().getExamen()
-                    .getPromedio()) {
-                SiftUp(hijoIzquierdo);
-            } else {
-                SiftDown(hijoIzquierdo);
-            }
-            return nuevo;
-        } else if (_estudiantes[hijoDerecho] == null) {
-            _estudiantes[hijoDerecho] = nuevo;
-            if (estudiante.getExamen().getPromedio() < _estudiantes[_ultimo].getEstudiante().getExamen()
-                    .getPromedio()) {
-                SiftUp(hijoDerecho);
-            } else {
-                SiftDown(hijoDerecho);
-            }
-            _ultimo++;
-            return nuevo;
-
         }
-        return null;
+        _estudiantes[_ultimo] = nuevo;
+        SiftUp(_ultimo);
+        return nuevo;
     }
 
     private void SiftUp(int index) {
-        // while (index > 0) {
-        // int parentIndex = (index - 1) / 2;
-        // if (_estudiantes[index].getEstudiante().getExamen().getPromedio() >
-        // _estudiantes[parentIndex]
-        // .getEstudiante().getExamen().getPromedio()) {
-        // HandlerHeap temp = _estudiantes[index];
-        // _estudiantes[index] = _estudiantes[parentIndex];
-        // _estudiantes[parentIndex] = temp;
-        // _estudiantes[index]._heapIndex = index;
-        // _estudiantes[parentIndex]._heapIndex = parentIndex;
-        // index = parentIndex;
-        // } else if (_estudiantes[index].getEstudiante().getExamen().getPromedio() ==
-        // _estudiantes[parentIndex]
-        // .getEstudiante().getExamen().getPromedio()) {
-        // if (_estudiantes[index].getEstudiante().getId() >
-        // _estudiantes[parentIndex].getEstudiante().getId()) {
-        // HandlerHeap temp = _estudiantes[index];
-        // _estudiantes[index] = _estudiantes[parentIndex];
-        // _estudiantes[parentIndex] = temp;
-        // _estudiantes[index]._heapIndex = index;
-        // _estudiantes[parentIndex]._heapIndex = parentIndex;
-        // index = parentIndex;
-        // }
-        // }
-        // }
+
         int padre = (index - 1) / 2;
-        if (index > 0 && EsMenor(_estudiantes[index].getEstudiante(), _estudiantes[padre].getEstudiante())) {
+        if (index > 0 && compare(_estudiantes[index].getEstudiante(), _estudiantes[padre].getEstudiante()) < 0) {
             HandlerHeap temp = _estudiantes[index];
             _estudiantes[index] = _estudiantes[padre];
             _estudiantes[padre] = temp;
@@ -79,50 +46,6 @@ public class ColaPrioridadHeap {
     }
 
     private void SiftDown(int index) {
-        // while (_estudiantes[index * 2 + 1] != null) {
-        // int hijoIzquierdo = index * 2 + 1;
-        // int hijoDerecho = index * 2 + 2;
-        // int mayor = index;
-
-        // if (hijoIzquierdo < _ultimo
-        // && _estudiantes[hijoIzquierdo].getEstudiante().getExamen().getPromedio() >
-        // _estudiantes[mayor]
-        // .getEstudiante().getExamen().getPromedio()) {
-        // mayor = hijoIzquierdo;
-        // } else if
-        // (_estudiantes[hijoIzquierdo].getEstudiante().getExamen().getPromedio() ==
-        // _estudiantes[mayor]
-        // .getEstudiante().getExamen().getPromedio()) {
-        // if (_estudiantes[hijoIzquierdo].getEstudiante().getId() >
-        // _estudiantes[mayor].getEstudiante().getId()) {
-        // mayor = hijoIzquierdo;
-        // }
-        // }
-
-        // if (hijoDerecho < _ultimo
-        // && _estudiantes[hijoDerecho].getEstudiante().getExamen().getPromedio() >
-        // _estudiantes[mayor]
-        // .getEstudiante().getExamen().getPromedio()) {
-        // mayor = hijoDerecho;
-        // } else if
-        // (_estudiantes[hijoDerecho].getEstudiante().getExamen().getPromedio() ==
-        // _estudiantes[mayor]
-        // .getEstudiante().getExamen().getPromedio()) {
-        // if (_estudiantes[hijoDerecho].getEstudiante().getId() >
-        // _estudiantes[mayor].getEstudiante().getId()) {
-        // mayor = hijoDerecho;
-        // }
-        // }
-        // if (mayor == index) {
-        // break;
-        // }
-        // HandlerHeap temp = _estudiantes[index];
-        // _estudiantes[index] = _estudiantes[mayor];
-        // _estudiantes[mayor] = temp;
-        // _estudiantes[index]._heapIndex = index;
-        // _estudiantes[mayor]._heapIndex = mayor;
-        // index = mayor;
-        // }
         int hijoIzquierdo = index * 2 + 1;
         int hijoDerecho = index * 2 + 2;
         int mejorHijo = hijoIzquierdo;
@@ -130,11 +53,12 @@ public class ColaPrioridadHeap {
             return;
 
         if (hijoDerecho < _ultimo
-                && EsMayor(_estudiantes[hijoIzquierdo].getEstudiante(), _estudiantes[hijoDerecho].getEstudiante())) {
+                && compare(_estudiantes[hijoIzquierdo].getEstudiante(),
+                        _estudiantes[hijoDerecho].getEstudiante()) > 0) {
             mejorHijo = hijoDerecho;
         }
 
-        if (EsMayor(_estudiantes[index].getEstudiante(), _estudiantes[mejorHijo].getEstudiante())) {
+        if (compare(_estudiantes[index].getEstudiante(), _estudiantes[mejorHijo].getEstudiante()) > 0) {
             HandlerHeap temp = _estudiantes[index];
             _estudiantes[index] = _estudiantes[mejorHijo];
             _estudiantes[mejorHijo] = temp;
@@ -145,54 +69,76 @@ public class ColaPrioridadHeap {
     }
 
     private boolean EsMenor(Estudiante menor, Estudiante mayor) {
-        if(menor.getEstudiante().getEntregado() != mayor.getEstudiante().getEntregado()){
-            if(menor.getEstudiante().getEntregado()){
-                return false
+        if (menor.getEntregado() != mayor.getEntregado()) {
+            if (menor.getEntregado()) {
+                return false;
+            } else {
+                return true;
             }
-            else{
-                return true
-            }
-        }
-        else{
+        } else {
 
-        if (menor.getExamen().getPromedio() < mayor.getExamen().getPromedio()) {
-            return true;
-        } else if (menor.getExamen().getPromedio() == mayor.getExamen().getPromedio()) {
-            return menor.getId() < mayor.getId();
-        }
+            if (menor.getExamen().getPromedio() < mayor.getExamen().getPromedio()) {
+                return true;
+            } else if (menor.getExamen().getPromedio() == mayor.getExamen().getPromedio()) {
+                return menor.getId() > mayor.getId();
+            }
         }
 
         return false;
     }
 
     private boolean EsMayor(Estudiante mayor, Estudiante menor) {
-        if(mayor.getEstudiante().getEntregado() != menor.getEstudiante().getEntregado()){
-            if(mayor.getEstudiante().getEntregado()){
-                return false
-            }
-            else{
-                return true
+        if (mayor.getEntregado() != menor.getEntregado()) {
+            if (mayor.getEntregado()) {
+                return false;
+            } else {
+                return true;
             }
         }
         if (mayor.getExamen().getPromedio() > menor.getExamen().getPromedio()) {
             return true;
         } else if (mayor.getExamen().getPromedio() == menor.getExamen().getPromedio()) {
-            return mayor.getId() > menor.getId();
+            return mayor.getId() < menor.getId();
         }
         return false;
     }
 
-    public void reOrdenar(int heapIndex) {
-        HandlerHeap handler = _estudiantes[heapIndex];
-        if (handler != null) {
-            if (handler.getEstudiante().getExamen().getPromedio() > _estudiantes[(heapIndex - 1) / 2].getEstudiante()
-                    .getExamen()
-                    .getPromedio()) {
-                SiftUp(heapIndex);
+    private int compare(Estudiante a, Estudiante b) {
+        if (a.getEntregado() != b.getEntregado()) {
+            if (a.getEntregado()) {
+                return 1;
             } else {
-                SiftDown(heapIndex);
+                return -1;
             }
         }
+        int comparador = Double.compare(a.getExamen().getPromedio(), b.getExamen().getPromedio());
+        if (comparador != 0) {
+            return comparador;
+        } else {
+            return Integer.compare(b.getId(), a.getId());
+        }
+    }
+
+    public void reOrdenar(int heapIndex) {
+        if (heapIndex >= _ultimo)
+            return;
+        HandlerHeap handler = _estudiantes[heapIndex];
+
+        if (compare(handler.getEstudiante(), _estudiantes[(heapIndex - 1) / 2].getEstudiante()) < 0) {
+            SiftUp(heapIndex);
+        } else {
+            SiftDown(heapIndex);
+        }
+
+    }
+
+    public HandlerHeap desencolar() {
+        HandlerHeap handler = _estudiantes[0];
+        HandlerHeap temp = _estudiantes[_estudiantes.length - 1];
+        _estudiantes[0] = temp;
+        _estudiantes[_estudiantes.length - 1] = null;
+        reOrdenar(0);
+        return handler;
     }
 
     public class HandlerHeap {

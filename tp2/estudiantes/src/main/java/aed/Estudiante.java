@@ -1,8 +1,6 @@
 package aed;
 
-import javafx.util.Pair;
-
-public class Estudiante {
+public class Estudiante implements Comparable<Estudiante> {
     private int _id;
     private Examen _examen;
     private boolean _entregado;
@@ -35,15 +33,23 @@ public class Estudiante {
         _entregado = true;
     }
 
-    public boolean getSeCopio(){
+    public boolean getSeCopio() {
         return _seCopio;
     }
-    public void setSeCopio(boolean b){
+
+    public void setSeCopio(boolean b) {
         _seCopio = b;
     }
 
-    public boolean getEntregado(){
+    public boolean getEntregado() {
         return _entregado;
     }
-    
+
+    @Override
+    public int compareTo(Estudiante otra) {
+        if (otra.getExamen().getPromedio() == this.getExamen().getPromedio()) {
+            return this._id - otra.getId();
+        }
+        return Double.compare(this.getExamen().getPromedio(), otra.getExamen().getPromedio());
+    }
 }

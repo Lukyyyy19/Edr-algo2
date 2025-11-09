@@ -11,6 +11,7 @@ public class Edr {
     private HandlerHeap[] _estudiantesPorId;
     private ColaPrioridadHeap _estudiantesPorPromedio;
     private int d_aula; // provisorio hasta ver que hacemos, si tenemos una clase aula o que
+    
 
     public Edr(int LadoAula, int Cant_estudiantes, int[] ExamenCanonico) {
         d_aula = LadoAula;

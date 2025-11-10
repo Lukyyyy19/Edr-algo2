@@ -27,6 +27,12 @@ public class Examen {
     }
 
     public void setRespuesta(int pregunta, int respuesta) {
+        if (_respuestas[pregunta] != -1) {
+            if (_respuestas[pregunta] == _respuestasCorrectas[pregunta]) {
+                _cantidadRespuestasCorrectas--;
+            }
+            _cantidadRespuestas--;
+        }
         _respuestas[pregunta] = respuesta;
         if (respuesta == _respuestasCorrectas[pregunta]) {
             _cantidadRespuestasCorrectas++;

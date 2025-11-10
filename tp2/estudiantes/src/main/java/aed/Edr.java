@@ -1,13 +1,15 @@
 package aed;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import aed.ColaPrioridadHeap.HandlerHeap;
 
 public class Edr {
 
     private HandlerHeap[] _estudiantesPorId;
-    private ColaPrioridadHeap _estudiantesPorPromedio;
+    public ColaPrioridadHeap _estudiantesPorPromedio;
     private int d_aula; // provisorio hasta ver que hacemos, si tenemos una clase aula o que
     private int[][] _conteoRespuestas;
 
@@ -95,7 +97,7 @@ public class Edr {
     public void consultarDarkWeb(int n, int[] examenDW) {
         HandlerHeap[] ests = new HandlerHeap[n];
         for (int i = 0; i < n; i++) {
-            HandlerHeap estudiante = _estudiantesPorPromedio.getProm(i);
+            HandlerHeap estudiante = _estudiantesPorPromedio.desencolar();
             ests[i] = estudiante;
         }
         for (int i = 0; i < n; i++) {
@@ -105,7 +107,7 @@ public class Edr {
                 }
                 resolver(ests[i].getEstudiante().getId(), j, examenDW[j]);
             }
-            _estudiantesPorPromedio.reOrdenar(ests[i].getHeapIndex());
+            _estudiantesPorPromedio.insertar(ests[i].getEstudiante());
         }
     }
 
@@ -121,20 +123,35 @@ public class Edr {
 
     public NotaFinal[] corregir() {
         ArrayList<NotaFinal> nfinalLista = new ArrayList<NotaFinal>();
+        ColaPrioridadHeap cola = new ColaPrioridadHeap(_estudiantesPorPromedio.getLongitud());
         // for (int i = 0; i < _estudiantesPorPromedio.getLongitud(); i++) {
         // _estudiantesPorPromedio.reOrdenarInvertido(i);
         // }
         for (int i = 0; i < _estudiantesPorPromedio.getLongitud(); i++) {
             HandlerHeap handler = _estudiantesPorPromedio.getProm(i);
             if (!handler.getEstudiante().getSeCopio()) {
+                // NotaFinal nfinal = new
+                // NotaFinal(handler.getEstudiante().getExamen().getPromedio(),
+                // handler.getEstudiante().getId());
+                // nfinalLista.add(nfinal);
+                HandlerHeap h = _estudiantesPorPromedio.getProm(i);
+                if (h != null) {
+                    cola.insertarInverso(h.getEstudiante());
+                }
+            }
+
+        }
+        for (int i = 0; i < cola.getLongitud(); i++) {
+            HandlerHeap handler = cola.getProm(i);
+            if (handler != null) {
+
                 NotaFinal nfinal = new NotaFinal(handler.getEstudiante().getExamen().getPromedio(),
                         handler.getEstudiante().getId());
                 nfinalLista.add(nfinal);
             }
-
         }
         NotaFinal[] ad = new NotaFinal[nfinalLista.size()];
-        ad = nfinalLista.toArray(ad);
+        // ad = nfinalLista.toArray(ad);
 
         // Invertir el arreglo con un for loop
         // for (int i = 0; i < ad.length / 2; i++) {
@@ -144,6 +161,16 @@ public class Edr {
         // }
 
         // OREDENAR nfinalLista
+        // Comparator que ordena por nota descendente y luego id descendente
+        // Comparator<NotaFinal> comp = (a, b) -> {
+        // int cmp = Double.compare(b._nota, a._nota); // nota descendente
+        // if (cmp != 0)
+        // return cmp;
+        // return Integer.compare(b._id, a._id); // id descendente
+        // };
+
+        // Collections.sort(nfinalLista, comp);
+        ad = nfinalLista.toArray(ad);
         return ad;
     }
 

@@ -163,10 +163,6 @@ public class ColaPrioridadHeap {
         if (comparador != 0) {
             return comparador;
         } else {
-            if (inverso) {
-
-                return Integer.compare(b.getId(), a.getId());
-            }
             return Integer.compare(a.getId(), b.getId());
         }
     }
@@ -204,6 +200,16 @@ public class ColaPrioridadHeap {
         _estudiantes[_ultimo - 1] = null;
         _ultimo--;
         reOrdenar(0);
+        return handler;
+    }
+
+    public HandlerHeap desencolarInverso() {
+        HandlerHeap handler = _estudiantes[0];
+        HandlerHeap temp = _estudiantes[_ultimo - 1];
+        _estudiantes[0] = temp;
+        _estudiantes[_ultimo - 1] = null;
+        _ultimo--;
+        reOrdenarInvertido(0);
         return handler;
     }
 

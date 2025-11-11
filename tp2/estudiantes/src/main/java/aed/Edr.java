@@ -12,6 +12,7 @@ public class Edr {
     public ColaPrioridadHeap _estudiantesPorPromedio;
     private int d_aula; // provisorio hasta ver que hacemos, si tenemos una clase aula o que
     private int[][] _conteoRespuestas;
+    private int estudiantes_copiones;
 
     public Edr(int LadoAula, int Cant_estudiantes, int[] ExamenCanonico) {
         d_aula = LadoAula;
@@ -98,6 +99,10 @@ public class Edr {
         HandlerHeap[] ests = new HandlerHeap[n];
         for (int i = 0; i < n; i++) {
             HandlerHeap estudiante = _estudiantesPorPromedio.desencolar();
+            if (estudiante.getEstudiante().getEntregado()) {
+                _estudiantesPorPromedio.insertar(estudiante.getEstudiante());
+                continue;
+            }
             ests[i] = estudiante;
         }
         for (int i = 0; i < n; i++) {
@@ -117,59 +122,37 @@ public class Edr {
         HandlerHeap estudianteHandler = _estudiantesPorId[estudiante];
         estudianteHandler.getEstudiante().entregar();
         _estudiantesPorPromedio.reOrdenar(estudianteHandler.getHeapIndex());
-    }// O(1)
+    }// O(log(E))
 
     // -----------------------------------------------------CORREGIR---------------------------------------------------------
 
     public NotaFinal[] corregir() {
         ArrayList<NotaFinal> nfinalLista = new ArrayList<NotaFinal>();
-        ColaPrioridadHeap cola = new ColaPrioridadHeap(_estudiantesPorPromedio.getLongitud());
-        // for (int i = 0; i < _estudiantesPorPromedio.getLongitud(); i++) {
-        // _estudiantesPorPromedio.reOrdenarInvertido(i);
-        // }
+        ColaPrioridadHeap cola = new ColaPrioridadHeap(_estudiantesPorPromedio.getLongitud() - estudiantes_copiones);
+
         for (int i = 0; i < _estudiantesPorPromedio.getLongitud(); i++) {
-            HandlerHeap handler = _estudiantesPorPromedio.getProm(i);
+            HandlerHeap handler = _estudiantesPorPromedio.desencolar();
             if (!handler.getEstudiante().getSeCopio()) {
-                // NotaFinal nfinal = new
-                // NotaFinal(handler.getEstudiante().getExamen().getPromedio(),
-                // handler.getEstudiante().getId());
-                // nfinalLista.add(nfinal);
-                HandlerHeap h = _estudiantesPorPromedio.getProm(i);
-                if (h != null) {
-                    cola.insertarInverso(h.getEstudiante());
+
+                if (handler != null) {
+                    cola.insertarInverso(handler.getEstudiante());
                 }
+            } else {
+                _estudiantesPorPromedio.insertar(handler.getEstudiante());
             }
 
         }
         for (int i = 0; i < cola.getLongitud(); i++) {
-            HandlerHeap handler = cola.getProm(i);
+            HandlerHeap handler = cola.desencolarInverso();
             if (handler != null) {
 
                 NotaFinal nfinal = new NotaFinal(handler.getEstudiante().getExamen().getPromedio(),
                         handler.getEstudiante().getId());
                 nfinalLista.add(nfinal);
+                _estudiantesPorPromedio.insertar(handler.getEstudiante());
             }
         }
         NotaFinal[] ad = new NotaFinal[nfinalLista.size()];
-        // ad = nfinalLista.toArray(ad);
-
-        // Invertir el arreglo con un for loop
-        // for (int i = 0; i < ad.length / 2; i++) {
-        // NotaFinal temp = ad[i];
-        // ad[i] = ad[ad.length - 1 - i];
-        // ad[ad.length - 1 - i] = temp;
-        // }
-
-        // OREDENAR nfinalLista
-        // Comparator que ordena por nota descendente y luego id descendente
-        // Comparator<NotaFinal> comp = (a, b) -> {
-        // int cmp = Double.compare(b._nota, a._nota); // nota descendente
-        // if (cmp != 0)
-        // return cmp;
-        // return Integer.compare(b._id, a._id); // id descendente
-        // };
-
-        // Collections.sort(nfinalLista, comp);
         ad = nfinalLista.toArray(ad);
         return ad;
     }
@@ -207,6 +190,7 @@ public class Edr {
             if (respuestasCopiadas > 0 && respuestasCopiadas == estudiante.getExamen().cantidadRespuestas()) {
                 estudiante.setSeCopio(true);
                 copias.add(i);
+                estudiantes_copiones++;
             }
         }
         int[] result = new int[copias.size()];

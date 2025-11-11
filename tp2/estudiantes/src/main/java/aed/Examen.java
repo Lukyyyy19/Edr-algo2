@@ -44,7 +44,7 @@ public class Examen {
         if (_cantidadRespuestas == 0) {
             return 0;
         }
-        return _cantidadRespuestasCorrectas * 10;
+        return (_cantidadRespuestasCorrectas / (double) _respuestas.length) * 100;
     }
 
     public int cantidadPreguntas() {

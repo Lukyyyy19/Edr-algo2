@@ -1,21 +1,18 @@
 package aed;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
 import aed.ColaPrioridadHeap.HandlerHeap;
 
 public class Edr {
 
     private HandlerHeap[] _estudiantesPorId;
     public ColaPrioridadHeap _estudiantesPorPromedio;
-    private int d_aula; // provisorio hasta ver que hacemos, si tenemos una clase aula o que
+    private int _ladoAula;
     private int[][] _conteoRespuestas;
     private int estudiantes_copiones;
 
     public Edr(int LadoAula, int Cant_estudiantes, int[] ExamenCanonico) {
-        d_aula = LadoAula;
+        _ladoAula = LadoAula;
         _estudiantesPorId = new HandlerHeap[Cant_estudiantes];
         _estudiantesPorPromedio = new ColaPrioridadHeap(Cant_estudiantes);
         _conteoRespuestas = new int[ExamenCanonico.length][10];
@@ -44,9 +41,10 @@ public class Edr {
 
     public void copiarse(int estudiante) {
         Estudiante est = _estudiantesPorId[estudiante].getEstudiante();
-        int[] vecinos = { estudiante - 1, estudiante + 1, (int) (estudiante - Math.ceil(d_aula / 2)) }; // toma todos
-                                                                                                        // los Id de los
-                                                                                                        // vecinos
+        int[] vecinos = { estudiante - 1, estudiante + 1, (int) (estudiante - Math.ceil(_ladoAula / 2)) }; // toma todos
+                                                                                                           // los Id de
+                                                                                                           // los
+                                                                                                           // vecinos
         Estudiante mejorVecino = null;
         int mejorVecinoRtas = 0;
         for (int i = 0; i < vecinos.length; i++) {// O(1)
@@ -64,9 +62,14 @@ public class Edr {
                     if (mejorVecino == null) {
                         mejorVecino = estVecino;
                         mejorVecinoRtas = rtasVecino;
-                    } else if (rtasVecino >= mejorVecinoRtas) {
+                    } else if (rtasVecino > mejorVecinoRtas) {
                         mejorVecino = estVecino;
                         mejorVecinoRtas = rtasVecino;
+                    } else if (rtasVecino == mejorVecinoRtas) {
+                        if (mejorVecino.getId() < estVecino.getId()) {
+                            mejorVecino = estVecino;
+                            mejorVecinoRtas = rtasVecino;
+                        }
                     }
 
                 }
@@ -88,7 +91,9 @@ public class Edr {
         HandlerHeap handler = _estudiantesPorId[estudiante];
         _conteoRespuestas[NroEjercicio][res]++;
         handler.getEstudiante().completarEjercicio(NroEjercicio, res);
-        _estudiantesPorPromedio.reOrdenar(handler.getHeapIndex());// O(log(E))
+        if (handler.getHeapIndex() >= 0) {
+            _estudiantesPorPromedio.reOrdenar(handler.getHeapIndex());// O(log(E))
+        }
 
     }// O(log(E))
 
@@ -99,12 +104,8 @@ public class Edr {
         HandlerHeap[] ests = new HandlerHeap[n];
         for (int i = 0; i < n; i++) {
             HandlerHeap estudiante = _estudiantesPorPromedio.desencolar();
-            if (estudiante.getEstudiante().getEntregado()) {
-                _estudiantesPorPromedio.insertar(estudiante.getEstudiante());
-                continue;
-            }
             ests[i] = estudiante;
-        }
+        } // O(n log(E))
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < examenDW.length; j++) {
                 if (ests[i].getEstudiante().getExamen().getRespuesta(j) != -1) {
@@ -112,9 +113,10 @@ public class Edr {
                 }
                 resolver(ests[i].getEstudiante().getId(), j, examenDW[j]);
             }
-            _estudiantesPorPromedio.insertar(ests[i].getEstudiante());
+            _estudiantesPorId[ests[i].getEstudiante().getId()] = _estudiantesPorPromedio
+                    .insertar(ests[i].getEstudiante());
         }
-    }
+    }// O(n(R + log(E)))
 
     // -------------------------------------------------ENTREGAR-------------------------------------------------------------
 
@@ -130,32 +132,30 @@ public class Edr {
         ArrayList<NotaFinal> nfinalLista = new ArrayList<NotaFinal>();
         ColaPrioridadHeap cola = new ColaPrioridadHeap(_estudiantesPorPromedio.getLongitud() - estudiantes_copiones);
 
-        for (int i = 0; i < _estudiantesPorPromedio.getLongitud(); i++) {
-            HandlerHeap handler = _estudiantesPorPromedio.desencolar();
+        for (int i = 0; i < _estudiantesPorId.length; i++) {// O(E)
+            HandlerHeap handler = _estudiantesPorId[i];
             if (!handler.getEstudiante().getSeCopio()) {
-
                 if (handler != null) {
-                    cola.insertarInverso(handler.getEstudiante());
+                    cola.insertarInverso(handler.getEstudiante());// O(log(E))
                 }
-            } else {
-                _estudiantesPorPromedio.insertar(handler.getEstudiante());
             }
 
         }
-        for (int i = 0; i < cola.getLongitud(); i++) {
-            HandlerHeap handler = cola.desencolarInverso();
+        for (int i = 0; i < cola.getLongitud(); i++) {// O(E)
+            HandlerHeap handler = cola.desencolarInverso();// O(log(E))
             if (handler != null) {
 
                 NotaFinal nfinal = new NotaFinal(handler.getEstudiante().getExamen().getPromedio(),
                         handler.getEstudiante().getId());
                 nfinalLista.add(nfinal);
-                _estudiantesPorPromedio.insertar(handler.getEstudiante());
             }
         }
         NotaFinal[] ad = new NotaFinal[nfinalLista.size()];
-        ad = nfinalLista.toArray(ad);
+        for (int i = 0; i < nfinalLista.size(); i++) { // O(E)
+            ad[i] = nfinalLista.get(i);
+        }
         return ad;
-    }
+    }// O(E*log(E))
 
     // -------------------------------------------------------CHEQUEAR
     // COPIAS-------------------------------------------------
@@ -166,23 +166,10 @@ public class Edr {
             Estudiante estudiante = _estudiantesPorId[i].getEstudiante();
             int respuestasCopiadas = 0;
             for (int j = 0; j < estudiante.getExamen().cantidadPreguntas(); j++) {// O(R)
-                // double suma = 0;
                 if (estudiante.getExamen().getRespuesta(j) != -1) {
                     double cantidadRespuestas = _conteoRespuestas[j][estudiante.getExamen().getRespuesta(j)];
-                    // for (int k = 0; k < _estudiantesPorId.length; k++) {// O(E)
-                    // if (k != i) {
-                    // Estudiante otroEstudiante = _estudiantesPorId[k].getEstudiante();
-                    // if (otroEstudiante.getExamen().getRespuesta(j) ==
-                    // estudiante.getExamen().getRespuesta(j)) {
-                    // // Se encontró un compañero que copió la respuesta
-                    // suma += 1;
-                    // }
-                    // }
-                    // }
-                    // }
                     if ((cantidadRespuestas - 1)
                             / (_estudiantesPorId.length - 1) >= 0.25) {
-                        // Se encontró un compañero que copió la respuesta
                         respuestasCopiadas++;
                     }
                 }
@@ -196,7 +183,7 @@ public class Edr {
         int[] result = new int[copias.size()];
         for (int i = 0; i < copias.size(); i++) {
             result[i] = copias.get(i);
-        } // Esto fue la forma rapida que se me ocurrio, seguro hay algo mejor
+        }
         return result;
     }// O(E^2 * R) NO RESPETA EL ENUNCIADO
 }

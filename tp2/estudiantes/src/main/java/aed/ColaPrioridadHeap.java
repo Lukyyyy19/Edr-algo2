@@ -19,12 +19,7 @@ public class ColaPrioridadHeap {
     }
 
     public HandlerHeap insertar(Estudiante estudiante) {
-        // int hijoIzquierdo = _ultimo * 2 + 1;
-        // int hijoDerecho = _ultimo * 2 + 2;
         HandlerHeap nuevo = new HandlerHeap(estudiante, _ultimo);
-        // if (_estudiantes[_ultimo] == null) {
-        // _estudiantes[_ultimo] = nuevo;
-        // }
         _estudiantes[_ultimo] = nuevo;
         SiftUp(_ultimo, false);
         _ultimo++;
@@ -195,19 +190,34 @@ public class ColaPrioridadHeap {
 
     public HandlerHeap desencolar() {
         HandlerHeap handler = _estudiantes[0];
-        HandlerHeap temp = _estudiantes[_ultimo - 1];
-        _estudiantes[0] = temp;
-        _estudiantes[_ultimo - 1] = null;
-        _ultimo--;
+        if (_ultimo != 0) {
+            HandlerHeap temp = _estudiantes[_ultimo - 1];
+            _estudiantes[0] = temp;
+            _estudiantes[_ultimo - 1] = null;
+        } else {
+            HandlerHeap temp = _estudiantes[_ultimo];
+            _estudiantes[0] = temp;
+            _estudiantes[_ultimo] = null;
+        }
+        if (_ultimo > 0) {
+            _ultimo--;
+        }
+        handler._heapIndex = -1;
         reOrdenar(0);
         return handler;
     }
 
     public HandlerHeap desencolarInverso() {
         HandlerHeap handler = _estudiantes[0];
-        HandlerHeap temp = _estudiantes[_ultimo - 1];
-        _estudiantes[0] = temp;
-        _estudiantes[_ultimo - 1] = null;
+        if (_ultimo != 0) {
+            HandlerHeap temp = _estudiantes[_ultimo - 1];
+            _estudiantes[0] = temp;
+            _estudiantes[_ultimo - 1] = null;
+        } else {
+            HandlerHeap temp = _estudiantes[_ultimo];
+            _estudiantes[0] = temp;
+            _estudiantes[_ultimo] = null;
+        }
         _ultimo--;
         reOrdenarInvertido(0);
         return handler;

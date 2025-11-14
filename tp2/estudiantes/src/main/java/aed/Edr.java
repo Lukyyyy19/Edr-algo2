@@ -6,7 +6,7 @@ import aed.ColaPrioridadHeap.HandlerHeap;
 public class Edr {
 
     private HandlerHeap[] _estudiantesPorId;
-    public ColaPrioridadHeap _estudiantesPorPromedio;
+    private ColaPrioridadHeap _estudiantesPorPromedio;
     private int _ladoAula;
     private int[][] _conteoRespuestas;
     private int estudiantes_copiones;
@@ -75,11 +75,13 @@ public class Edr {
                 }
             }
         }
-
-        for (int i = 0; i < est.getExamen().cantidadPreguntas(); i++) {
-            if (mejorVecino.getExamen().getRespuesta(i) != -1 && est.getExamen().getRespuesta(i) == -1) {
-                resolver(est.getId(), i, mejorVecino.getExamen().getRespuesta(i));
-                break;
+        if (mejorVecino != null) {
+          
+            for (int i = 0; i < est.getExamen().cantidadPreguntas(); i++) {
+                if (mejorVecino.getExamen().getRespuesta(i) != -1 && est.getExamen().getRespuesta(i) == -1) {
+                    resolver(est.getId(), i, mejorVecino.getExamen().getRespuesta(i));
+                    break;
+                }
             }
         } // O(R)
 
@@ -89,7 +91,10 @@ public class Edr {
 
     public void resolver(int estudiante, int NroEjercicio, int res) {
         HandlerHeap handler = _estudiantesPorId[estudiante];
-        _conteoRespuestas[NroEjercicio][res]++;
+        if(res!=-1){
+            
+            _conteoRespuestas[NroEjercicio][res]++;
+        }
         handler.getEstudiante().completarEjercicio(NroEjercicio, res);
         if (handler.getHeapIndex() >= 0) {
             _estudiantesPorPromedio.reOrdenar(handler.getHeapIndex());// O(log(E))

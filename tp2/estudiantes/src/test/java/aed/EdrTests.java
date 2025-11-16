@@ -848,7 +848,7 @@ class EdrTests {
     }
 
         @Test
-    void uno_se_copia () {
+    void menor_id_mayor_nota () {
          d_aula = 5;
         cant_alumnos = 3;
         solucion = new int[]{0,1,2,3,4,5,6,7,8,9};

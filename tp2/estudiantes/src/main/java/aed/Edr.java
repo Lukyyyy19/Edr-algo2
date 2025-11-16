@@ -21,7 +21,7 @@ public class Edr {
             _estudiantesPorId[i] = _estudiantesPorPromedio.insertar(estudiante);
         } // Ordenar no suma complejidad por que estamos sumando un conjunto completo ya
           // ordenado (Heapify)
-    }// O(E*R)
+    }// Costo Total: O(E) * O(R) = O(E*R)
 
     // -------------------------------------------------NOTAS--------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ public class Edr {
         }
         if (mejorVecino != null) {
           
-            for (int i = 0; i < est.getExamen().cantidadPreguntas(); i++) {
+            for (int i = 0; i < est.getExamen().cantidadPreguntas(); i++) { // O(R)
                 if (mejorVecino.getExamen().getRespuesta(i) != -1 && est.getExamen().getRespuesta(i) == -1) {
                     resolver(est.getId(), i, mejorVecino.getExamen().getRespuesta(i));
                     break;
@@ -85,7 +85,7 @@ public class Edr {
             }
         } // O(R)
 
-    }// O(R)
+    }// Costo Total: O(R) + O(R) + O(log(E)) = O(R + log(E))
 
     // -----------------------------------------------RESOLVER----------------------------------------------------------------
 
@@ -100,7 +100,7 @@ public class Edr {
             _estudiantesPorPromedio.reOrdenar(handler.getHeapIndex());// O(log(E))
         }
 
-    }// O(log(E))
+    }// Costo Total: O(log(E)) = O(log(E))
 
     // ------------------------------------------------CONSULTAR DARK
     // WEB-------------------------------------------------------
@@ -112,16 +112,16 @@ public class Edr {
             ests[i] = estudiante;
         } // O(n log(E))
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < examenDW.length; j++) {
+            for (int j = 0; j < examenDW.length; j++) { // O(n*R)
                 if (ests[i].getEstudiante().getExamen().getRespuesta(j) != -1) {
                     _conteoRespuestas[j][ests[i].getEstudiante().getExamen().getRespuesta(j)]--;
                 }
-                resolver(ests[i].getEstudiante().getId(), j, examenDW[j]);
+                resolver(ests[i].getEstudiante().getId(), j, examenDW[j]); // Como no esta dentro del heap, no debe reordenar, por lo que es O(1)
             }
             _estudiantesPorId[ests[i].getEstudiante().getId()] = _estudiantesPorPromedio
-                    .insertar(ests[i].getEstudiante());
+                    .insertar(ests[i].getEstudiante()); // O(log(E))
         }
-    }// O(n(R + log(E)))
+    }// Costo Total: n*log(E) + n*O(R) + n*log(E) + = O(n(R + log(E)))
 
     // -------------------------------------------------ENTREGAR-------------------------------------------------------------
 
@@ -129,7 +129,7 @@ public class Edr {
         HandlerHeap estudianteHandler = _estudiantesPorId[estudiante];
         estudianteHandler.getEstudiante().entregar();
         _estudiantesPorPromedio.reOrdenar(estudianteHandler.getHeapIndex());
-    }// O(log(E))
+    }// Costo Total: O(log(E))
 
     // -----------------------------------------------------CORREGIR---------------------------------------------------------
 
@@ -160,7 +160,7 @@ public class Edr {
             ad[i] = nfinalLista.get(i);
         }
         return ad;
-    }// O(E*log(E))
+    }// Costo Total: O(E) * O(log E) + O(E) * O(log E) + O(E) = O(E*log(E))
 
     // -------------------------------------------------------CHEQUEAR
     // COPIAS-------------------------------------------------
@@ -179,16 +179,16 @@ public class Edr {
                     }
                 }
             }
-            if (respuestasCopiadas > 0 && respuestasCopiadas == estudiante.getExamen().cantidadRespuestas()) {
+            if (respuestasCopiadas > 0 && respuestasCopiadas == estudiante.getExamen().cantidadRespuestas()) { //O (1)
                 estudiante.setSeCopio(true);
                 copias.add(i);
                 estudiantes_copiones++;
             }
         }
         int[] result = new int[copias.size()];
-        for (int i = 0; i < copias.size(); i++) {
+        for (int i = 0; i < copias.size(); i++) { // O(E) 
             result[i] = copias.get(i);
         }
         return result;
-    }// O(E^2 * R) NO RESPETA EL ENUNCIADO
+    }// Costo Total: O(E) * O(R) + O(E) = O(E * R)
 }

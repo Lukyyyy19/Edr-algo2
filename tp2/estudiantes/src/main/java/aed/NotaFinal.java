@@ -16,10 +16,10 @@ public class NotaFinal implements Comparable<NotaFinal> {
         return Double.compare(this._nota, otra._nota);
     }
     @Override
-    public boolean equals(Object o){
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NotaFinal that = (NotaFinal) o;
+    public boolean equals(Object otro){
+        if (this == otro) return true;
+        if (otro == null || getClass() != otro.getClass()) return false;
+        NotaFinal that = (NotaFinal) otro;
         return Double.compare(that._nota, _nota) == 0 && _id == that._id;
     }
 }

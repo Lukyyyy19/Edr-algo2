@@ -47,9 +47,19 @@ public class Estudiante implements Comparable<Estudiante> {
 
     @Override
     public int compareTo(Estudiante otra) {
-        if (otra.getExamen().getPromedio() == this.getExamen().getPromedio()) {
-            return this._id - otra.getId();
+        if (this.getEntregado() != otra.getEntregado()) {
+            if (this.getEntregado()) {
+                return 1;
+            } else {
+                return -1;
+            }
         }
-        return Double.compare(this.getExamen().getPromedio(), otra.getExamen().getPromedio());
+        int comparador = Double.compare(this.getExamen().getPromedio(),
+                otra.getExamen().getPromedio());
+        if (comparador != 0) {
+            return comparador;
+        } else {
+            return Integer.compare(this.getId(), otra.getId());
+        }
     }
 }

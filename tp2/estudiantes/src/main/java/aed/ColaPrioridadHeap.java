@@ -1,7 +1,11 @@
 package aed;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.logging.Handler;
+
 //FALTA HACERLO MIN HEAP Y PONER LA COMPARACION DE ENTREGADO
-public class ColaPrioridadHeap {
+public class ColaPrioridadHeap<T extends Comparable<T>> {
     private HandlerHeap[] _estudiantes;
     private int _ultimo;
 
@@ -14,11 +18,15 @@ public class ColaPrioridadHeap {
     }
 
     public ColaPrioridadHeap(int capacidad) {
-        _estudiantes = new HandlerHeap[capacidad];
+        _estudiantes = crearArray(capacidad);
         _ultimo = 0;
     }
 
-    public HandlerHeap insertar(Estudiante estudiante) {
+    HandlerHeap[] crearArray(int size) {
+        return (HandlerHeap[]) Array.newInstance(HandlerHeap.class, size);
+    }
+
+    public HandlerHeap insertar(T estudiante) {
         HandlerHeap nuevo = new HandlerHeap(estudiante, _ultimo);
         _estudiantes[_ultimo] = nuevo;
         SiftUp(_ultimo, false);
@@ -26,7 +34,7 @@ public class ColaPrioridadHeap {
         return nuevo;
     }
 
-    public HandlerHeap insertarInverso(Estudiante estudiante) {
+    public HandlerHeap insertarInverso(T estudiante) {
         // int hijoIzquierdo = _ultimo * 2 + 1;
         // int hijoDerecho = _ultimo * 2 + 2;
         HandlerHeap nuevo = new HandlerHeap(estudiante, _ultimo);
@@ -57,7 +65,8 @@ public class ColaPrioridadHeap {
             }
             return;
         }
-        if (index > 0 && comparar(_estudiantes[index].getEstudiante(), _estudiantes[padre].getEstudiante(), false) < 0) {
+        if (index > 0
+                && comparar(_estudiantes[index].getEstudiante(), _estudiantes[padre].getEstudiante(), false) < 0) {
             HandlerHeap temp = _estudiantes[index];
             _estudiantes[index] = _estudiantes[padre];
             _estudiantes[padre] = temp;
@@ -109,23 +118,11 @@ public class ColaPrioridadHeap {
         }
     }
 
-    private int comparar(Estudiante a, Estudiante b, boolean inverso) {
-        if (a.getEntregado() != b.getEntregado()) {
-            if (a.getEntregado()) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-        int comparador = Double.compare(a.getExamen().getPromedio(), b.getExamen().getPromedio());
-        if (comparador != 0) {
-            return comparador;
-        } else {
-            return Integer.compare(a.getId(), b.getId());
-        }
+    private int comparar(T a, T b, boolean inverso) {
+        return a.compareTo(b);
     }
 
-    public void reOrdenar(int heapIndex) {
+    private void reOrdenar(int heapIndex) {
         if (heapIndex >= _ultimo)
             return;
         HandlerHeap handler = _estudiantes[heapIndex];
@@ -138,12 +135,12 @@ public class ColaPrioridadHeap {
 
     }
 
-    public void reOrdenarInvertido(int heapIndex) {
+    private void reOrdenarInvertido(int heapIndex) {
         if (heapIndex >= _ultimo)
             return;
         HandlerHeap handler = _estudiantes[heapIndex];
 
-        if (comparar(handler.getEstudiante(), _estudiantes[(heapIndex - 1) / 2].getEstudiante(), true) < 0) {
+        if (comparar((T) handler.getEstudiante(), _estudiantes[(heapIndex - 1) / 2].getEstudiante(), true) < 0) {
             SiftUp(heapIndex, true);
         } else {
             SiftDown(heapIndex, true);
@@ -186,21 +183,22 @@ public class ColaPrioridadHeap {
         return handler;
     }
 
+    public void actualizar(HandlerHeap handler) {
+        if (handler._heapIndex >= 0)
+            reOrdenar(handler._heapIndex);
+    }
+
     public class HandlerHeap {
-        private Estudiante _estudiante;
+        private T _estudiante;
         private int _heapIndex;
 
-        public HandlerHeap(Estudiante estudiante, int heapIndex) {
+        public HandlerHeap(T estudiante, int heapIndex) {
             _estudiante = estudiante;
             _heapIndex = heapIndex;
         }
 
-        public Estudiante getEstudiante() {
+        public T getEstudiante() {
             return _estudiante;
-        }
-
-        public int getHeapIndex() {
-            return _heapIndex;
         }
     }
 }

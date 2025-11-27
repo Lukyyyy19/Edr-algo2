@@ -10,7 +10,7 @@ public class Estudiante implements Comparable<Estudiante> {
         _id = id;
         _entregado = false;
         _examen = examen;
-        _entregado = false;
+        _seCopio = false;
     }
 
     public int getId() {

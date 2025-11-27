@@ -10,11 +10,8 @@ public class Edr {
     private int[][] _conteoRespuestas;
     private int estudiantes_copiones;
 
-    // @SuppressWarnings("unchecked")
     public Edr(int LadoAula, int Cant_estudiantes, int[] ExamenCanonico) {
         _ladoAula = LadoAula;
-        // Generic array creation is not allowed directly; create a raw array and cast
-        // with suppression.
         _estudiantesPorId = new ColaPrioridadHeap.HandlerHeap[Cant_estudiantes];
         _estudiantesPorPromedio = new ColaPrioridadHeap<Estudiante>(Cant_estudiantes);
         _conteoRespuestas = new int[ExamenCanonico.length][10];
@@ -32,8 +29,7 @@ public class Edr {
         for (int i = 0; i < _estudiantesPorId.length; i++) { // O(E)
             ColaPrioridadHeap<Estudiante>.HandlerHeap handler = _estudiantesPorId[i];
             if (handler != null) {
-                notas[i] = handler.getEstudiante().getExamen().getPromedio(); // O(1) //esto no se si esta bien o rompe
-                                                                              // encapsulamiento
+                notas[i] = handler.getValor().getExamen().getPromedio(); // O(1)
             }
         }
         return notas;
@@ -42,7 +38,7 @@ public class Edr {
     // ------------------------------------------------COPIARSE------------------------------------------------------------------------
 
     public void copiarse(int estudiante) {
-        Estudiante est = _estudiantesPorId[estudiante].getEstudiante();
+        Estudiante est = _estudiantesPorId[estudiante].getValor();
         int[] vecinos = { estudiante - 1, estudiante + 1, (int) (estudiante - Math.ceil(_ladoAula / 2)) }; // toma todos
                                                                                                            // los Id de
                                                                                                            // los
@@ -55,7 +51,7 @@ public class Edr {
             if (vecino >= 0 && vecino < _estudiantesPorId.length) {
                 ColaPrioridadHeap<Estudiante>.HandlerHeap handlerVecino = _estudiantesPorId[vecino];
                 if (handlerVecino != null) {
-                    Estudiante estVecino = handlerVecino.getEstudiante();
+                    Estudiante estVecino = handlerVecino.getValor();
                     for (int j = 0; j < estVecino.getExamen().cantidadPreguntas(); j++) { // O(R)
                         if (estVecino.getExamen().getRespuesta(j) != -1 && est.getExamen().getRespuesta(j) == -1) {
                             rtasVecino++;
@@ -94,11 +90,14 @@ public class Edr {
     public void resolver(int estudiante, int NroEjercicio, int res) {
         ColaPrioridadHeap<Estudiante>.HandlerHeap handler = _estudiantesPorId[estudiante];
         if (res != -1) {
-
             _conteoRespuestas[NroEjercicio][res]++;
         }
-        handler.getEstudiante().completarEjercicio(NroEjercicio, res);
 
+        if (handler.getValor().getExamen().getRespuesta(NroEjercicio) != -1) {
+            _conteoRespuestas[NroEjercicio][handler.getValor().getExamen().getRespuesta(NroEjercicio)]--;
+        }
+
+        handler.getValor().completarEjercicio(NroEjercicio, res);
         _estudiantesPorPromedio.actualizar(handler);// O(log(E))
 
     }// Costo Total: O(log(E)) = O(log(E))
@@ -114,14 +113,11 @@ public class Edr {
         } // O(n log(E))
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < examenDW.length; j++) { // O(n*R)
-                if (ests[i].getEstudiante().getExamen().getRespuesta(j) != -1) {
-                    _conteoRespuestas[j][ests[i].getEstudiante().getExamen().getRespuesta(j)]--;
-                }
-                resolver(ests[i].getEstudiante().getId(), j, examenDW[j]); // Como no esta dentro del heap, no debe
-                                                                           // reordenar, por lo que es O(1)
+                resolver(ests[i].getValor().getId(), j, examenDW[j]); // Como no esta dentro del heap, no debe
+                                                                      // reordenar, por lo que es O(1)
             }
-            _estudiantesPorId[ests[i].getEstudiante().getId()] = _estudiantesPorPromedio
-                    .insertar(ests[i].getEstudiante()); // O(log(E))
+            _estudiantesPorId[ests[i].getValor().getId()] = _estudiantesPorPromedio
+                    .insertar(ests[i].getValor()); // O(log(E))
         }
     }// Costo Total: n*log(E) + n*O(R) + n*log(E) + = O(n(R + log(E)))
 
@@ -129,22 +125,22 @@ public class Edr {
 
     public void entregar(int estudiante) {
         ColaPrioridadHeap<Estudiante>.HandlerHeap estudianteHandler = _estudiantesPorId[estudiante];
-        estudianteHandler.getEstudiante().entregar();
+        estudianteHandler.getValor().entregar();
         _estudiantesPorPromedio.actualizar(estudianteHandler);
     }// Costo Total: O(log(E))
 
     // -----------------------------------------------------CORREGIR---------------------------------------------------------
 
     public NotaFinal[] corregir() {
-        ArrayList<NotaFinal> nfinalLista = new ArrayList<NotaFinal>();
+        NotaFinal[] nfinalLista = new NotaFinal[_estudiantesPorId.length - estudiantes_copiones];
         ColaPrioridadHeap<Estudiante> cola = new ColaPrioridadHeap(
                 _estudiantesPorPromedio.getLongitud() - estudiantes_copiones);
 
         for (int i = 0; i < _estudiantesPorId.length; i++) {// O(E)
             ColaPrioridadHeap<Estudiante>.HandlerHeap handler = _estudiantesPorId[i];
-            if (!handler.getEstudiante().getSeCopio()) {
+            if (!handler.getValor().getSeCopio()) {
                 if (handler != null) {
-                    cola.insertarInverso(handler.getEstudiante());// O(log(E))
+                    cola.insertarInverso(handler.getValor());// O(log(E))
                 }
             }
 
@@ -153,16 +149,12 @@ public class Edr {
             ColaPrioridadHeap<Estudiante>.HandlerHeap handler = cola.desencolarInverso();// O(log(E))
             if (handler != null) {
 
-                NotaFinal nfinal = new NotaFinal(handler.getEstudiante().getExamen().getPromedio(),
-                        handler.getEstudiante().getId());
-                nfinalLista.add(nfinal);
+                NotaFinal nfinal = new NotaFinal(handler.getValor().getExamen().getPromedio(),
+                        handler.getValor().getId());
+                nfinalLista[i] = nfinal;
             }
         }
-        NotaFinal[] ad = new NotaFinal[nfinalLista.size()];
-        for (int i = 0; i < nfinalLista.size(); i++) { // O(E)
-            ad[i] = nfinalLista.get(i);
-        }
-        return ad;
+        return nfinalLista;
     }// Costo Total: O(E) * O(log E) + O(E) * O(log E) + O(E) = O(E*log(E))
 
     // -------------------------------------------------------CHEQUEAR
@@ -171,7 +163,7 @@ public class Edr {
     public int[] chequearCopias() {
         ArrayList<Integer> copias = new ArrayList<>();
         for (int i = 0; i < _estudiantesPorId.length; i++) {// O(E)
-            Estudiante estudiante = _estudiantesPorId[i].getEstudiante();
+            Estudiante estudiante = _estudiantesPorId[i].getValor();
             int respuestasCopiadas = 0;
             for (int j = 0; j < estudiante.getExamen().cantidadPreguntas(); j++) {// O(R)
                 if (estudiante.getExamen().getRespuesta(j) != -1) {

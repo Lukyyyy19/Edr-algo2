@@ -1,24 +1,22 @@
 package aed;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.logging.Handler;
 
 //FALTA HACERLO MIN HEAP Y PONER LA COMPARACION DE ENTREGADO
 public class ColaPrioridadHeap<T extends Comparable<T>> {
-    private HandlerHeap[] _estudiantes;
+    private HandlerHeap[] _nodos;
     private int _ultimo;
 
     public int getLongitud() {
-        return _estudiantes.length;
+        return _nodos.length;
     }
 
     public HandlerHeap getProm(int index) {
-        return _estudiantes[index];
+        return _nodos[index];
     }
 
     public ColaPrioridadHeap(int capacidad) {
-        _estudiantes = crearArray(capacidad);
+        _nodos = crearArray(capacidad);
         _ultimo = 0;
     }
 
@@ -26,24 +24,20 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
         return (HandlerHeap[]) Array.newInstance(HandlerHeap.class, size);
     }
 
-    public HandlerHeap insertar(T estudiante) {
-        HandlerHeap nuevo = new HandlerHeap(estudiante, _ultimo);
-        _estudiantes[_ultimo] = nuevo;
+    public HandlerHeap insertar(T valor) {
+        HandlerHeap nuevo = new HandlerHeap(valor, _ultimo);
+        _nodos[_ultimo] = nuevo;
         SiftUp(_ultimo, false);
         _ultimo++;
         return nuevo;
     }
 
     public HandlerHeap insertarInverso(T estudiante) {
-        // int hijoIzquierdo = _ultimo * 2 + 1;
-        // int hijoDerecho = _ultimo * 2 + 2;
         HandlerHeap nuevo = new HandlerHeap(estudiante, _ultimo);
-        if (_estudiantes[_ultimo] == null) {
-            _estudiantes[_ultimo] = nuevo;
-            // _ultimo++;
-            // return nuevo;
+        if (_nodos[_ultimo] == null) {
+            _nodos[_ultimo] = nuevo;
         }
-        _estudiantes[_ultimo] = nuevo;
+        _nodos[_ultimo] = nuevo;
         SiftUp(_ultimo, true);
         _ultimo++;
         return nuevo;
@@ -55,23 +49,23 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
         if (inverso) {
 
             if (index > 0
-                    && comparar(_estudiantes[index].getEstudiante(), _estudiantes[padre].getEstudiante(), true) > 0) {
-                HandlerHeap temp = _estudiantes[index];
-                _estudiantes[index] = _estudiantes[padre];
-                _estudiantes[padre] = temp;
-                _estudiantes[index]._heapIndex = index;
-                _estudiantes[padre]._heapIndex = padre;
+                    && comparar(_nodos[index].getValor(), _nodos[padre].getValor(), true) > 0) {
+                HandlerHeap temp = _nodos[index];
+                _nodos[index] = _nodos[padre];
+                _nodos[padre] = temp;
+                _nodos[index]._heapIndex = index;
+                _nodos[padre]._heapIndex = padre;
                 SiftUp(padre, inverso);
             }
             return;
         }
         if (index > 0
-                && comparar(_estudiantes[index].getEstudiante(), _estudiantes[padre].getEstudiante(), false) < 0) {
-            HandlerHeap temp = _estudiantes[index];
-            _estudiantes[index] = _estudiantes[padre];
-            _estudiantes[padre] = temp;
-            _estudiantes[index]._heapIndex = index;
-            _estudiantes[padre]._heapIndex = padre;
+                && comparar(_nodos[index].getValor(), _nodos[padre].getValor(), false) < 0) {
+            HandlerHeap temp = _nodos[index];
+            _nodos[index] = _nodos[padre];
+            _nodos[padre] = temp;
+            _nodos[index]._heapIndex = index;
+            _nodos[padre]._heapIndex = padre;
             SiftUp(padre, inverso);
         }
     }
@@ -86,34 +80,34 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
         if (inverso) {
 
             if (hijoDerecho < _ultimo
-                    && comparar(_estudiantes[hijoIzquierdo].getEstudiante(),
-                            _estudiantes[hijoDerecho].getEstudiante(), true) < 0) {
+                    && comparar(_nodos[hijoIzquierdo].getValor(),
+                            _nodos[hijoDerecho].getValor(), true) < 0) {
                 mejorHijo = hijoDerecho;
             }
 
-            if (comparar(_estudiantes[index].getEstudiante(), _estudiantes[mejorHijo].getEstudiante(), true) < 0) {
-                HandlerHeap temp = _estudiantes[index];
-                _estudiantes[index] = _estudiantes[mejorHijo];
-                _estudiantes[mejorHijo] = temp;
-                _estudiantes[index]._heapIndex = index;
-                _estudiantes[mejorHijo]._heapIndex = mejorHijo;
+            if (comparar(_nodos[index].getValor(), _nodos[mejorHijo].getValor(), true) < 0) {
+                HandlerHeap temp = _nodos[index];
+                _nodos[index] = _nodos[mejorHijo];
+                _nodos[mejorHijo] = temp;
+                _nodos[index]._heapIndex = index;
+                _nodos[mejorHijo]._heapIndex = mejorHijo;
                 SiftDown(mejorHijo, inverso);
             }
             return;
         }
 
         if (hijoDerecho < _ultimo
-                && comparar(_estudiantes[hijoIzquierdo].getEstudiante(),
-                        _estudiantes[hijoDerecho].getEstudiante(), false) > 0) {
+                && comparar(_nodos[hijoIzquierdo].getValor(),
+                        _nodos[hijoDerecho].getValor(), false) > 0) {
             mejorHijo = hijoDerecho;
         }
 
-        if (comparar(_estudiantes[index].getEstudiante(), _estudiantes[mejorHijo].getEstudiante(), false) > 0) {
-            HandlerHeap temp = _estudiantes[index];
-            _estudiantes[index] = _estudiantes[mejorHijo];
-            _estudiantes[mejorHijo] = temp;
-            _estudiantes[index]._heapIndex = index;
-            _estudiantes[mejorHijo]._heapIndex = mejorHijo;
+        if (comparar(_nodos[index].getValor(), _nodos[mejorHijo].getValor(), false) > 0) {
+            HandlerHeap temp = _nodos[index];
+            _nodos[index] = _nodos[mejorHijo];
+            _nodos[mejorHijo] = temp;
+            _nodos[index]._heapIndex = index;
+            _nodos[mejorHijo]._heapIndex = mejorHijo;
             SiftDown(mejorHijo, inverso);
         }
     }
@@ -125,9 +119,9 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
     private void reOrdenar(int heapIndex) {
         if (heapIndex >= _ultimo)
             return;
-        HandlerHeap handler = _estudiantes[heapIndex];
+        HandlerHeap handler = _nodos[heapIndex];
 
-        if (comparar(handler.getEstudiante(), _estudiantes[(heapIndex - 1) / 2].getEstudiante(), false) < 0) {
+        if (comparar(handler.getValor(), _nodos[(heapIndex - 1) / 2].getValor(), false) < 0) {
             SiftUp(heapIndex, false);
         } else {
             SiftDown(heapIndex, false);
@@ -138,9 +132,9 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
     private void reOrdenarInvertido(int heapIndex) {
         if (heapIndex >= _ultimo)
             return;
-        HandlerHeap handler = _estudiantes[heapIndex];
+        HandlerHeap handler = _nodos[heapIndex];
 
-        if (comparar((T) handler.getEstudiante(), _estudiantes[(heapIndex - 1) / 2].getEstudiante(), true) < 0) {
+        if (comparar((T) handler.getValor(), _nodos[(heapIndex - 1) / 2].getValor(), true) < 0) {
             SiftUp(heapIndex, true);
         } else {
             SiftDown(heapIndex, true);
@@ -149,15 +143,15 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
     }
 
     public HandlerHeap desencolar() {
-        HandlerHeap handler = _estudiantes[0];
+        HandlerHeap handler = _nodos[0];
         if (_ultimo != 0) {
-            HandlerHeap temp = _estudiantes[_ultimo - 1];
-            _estudiantes[0] = temp;
-            _estudiantes[_ultimo - 1] = null;
+            HandlerHeap temp = _nodos[_ultimo - 1];
+            _nodos[0] = temp;
+            _nodos[_ultimo - 1] = null;
         } else {
-            HandlerHeap temp = _estudiantes[_ultimo];
-            _estudiantes[0] = temp;
-            _estudiantes[_ultimo] = null;
+            HandlerHeap temp = _nodos[_ultimo];
+            _nodos[0] = temp;
+            _nodos[_ultimo] = null;
         }
         if (_ultimo > 0) {
             _ultimo--;
@@ -168,15 +162,15 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
     }
 
     public HandlerHeap desencolarInverso() {
-        HandlerHeap handler = _estudiantes[0];
+        HandlerHeap handler = _nodos[0];
         if (_ultimo != 0) {
-            HandlerHeap temp = _estudiantes[_ultimo - 1];
-            _estudiantes[0] = temp;
-            _estudiantes[_ultimo - 1] = null;
+            HandlerHeap temp = _nodos[_ultimo - 1];
+            _nodos[0] = temp;
+            _nodos[_ultimo - 1] = null;
         } else {
-            HandlerHeap temp = _estudiantes[_ultimo];
-            _estudiantes[0] = temp;
-            _estudiantes[_ultimo] = null;
+            HandlerHeap temp = _nodos[_ultimo];
+            _nodos[0] = temp;
+            _nodos[_ultimo] = null;
         }
         _ultimo--;
         reOrdenarInvertido(0);
@@ -189,16 +183,16 @@ public class ColaPrioridadHeap<T extends Comparable<T>> {
     }
 
     public class HandlerHeap {
-        private T _estudiante;
+        private T _valor;
         private int _heapIndex;
 
         public HandlerHeap(T estudiante, int heapIndex) {
-            _estudiante = estudiante;
+            _valor = estudiante;
             _heapIndex = heapIndex;
         }
 
-        public T getEstudiante() {
-            return _estudiante;
+        public T getValor() {
+            return _valor;
         }
     }
 }
